@@ -38,7 +38,7 @@
 }
 
 @test "set multiple long list options" {
-  run ./script.sh -l item0 -l item1
+  run ./script.sh --list item0 --list item1
   [[ $status -eq 0 ]]
   [[ $(echo $output | jq ".option_list[0]==\"item0\"") == true ]]
   [[ $(echo $output | jq ".option_list[1]==\"item1\"") == true ]]
