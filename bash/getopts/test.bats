@@ -75,6 +75,13 @@
   [[ $(echo $output | jq ".arguments[1]==\"arg1\"") == true ]]
 }
 
+@test "options ignored after --" {
+  run ./script.sh -v -- -v
+  [[ $status -eq 0 ]]
+  [[ $(echo $output | jq ".option_verbose==1") == true ]]
+  [[ $(echo $output | jq ".arguments[0]==\"-v\"") == true ]]
+}
+
 @test "options ignored after first argument" {
   run ./script.sh -f arg0 -v arg2
   [[ $status -eq 0 ]]
