@@ -19,6 +19,16 @@ echo_err() {
   echo "$1" 1>&2
 }
 
+echo_err_needarg() {
+  local optarg="$1"
+  echo_err "$0: option requires an argument -- $optarg"
+}
+
+echo_err_badopt() {
+  local optarg="$1"
+  echo_err "$0: illegal option -- $optarg"
+}
+
 option_dry_run=yes
 option_list=()
 option_value=''
@@ -35,11 +45,19 @@ while getopts -- "-:fhl:V:v" OPT; do
           option_dry_run=no
           ;;
         list)
+          if [[ $OPTIND -gt $BASH_ARGC ]]; then
+            echo_err_needarg $OPTARG
+            usage_exit
+          fi
           LONGOPT_ARG="${BASH_ARGV[$(($BASH_ARGC-$OPTIND))]}"
           option_list+=($LONGOPT_ARG)
           OPTIND=$((OPTIND+1))
           ;;
         value)
+          if [[ $OPTIND -gt $BASH_ARGC ]]; then
+            echo_err_needarg $OPTARG
+            usage_exit
+          fi
           LONGOPT_ARG="${BASH_ARGV[$(($BASH_ARGC-$OPTIND))]}"
           option_value+=($LONGOPT_ARG)
           OPTIND=$((OPTIND+1))
@@ -48,7 +66,7 @@ while getopts -- "-:fhl:V:v" OPT; do
           option_verbose=$(($option_verbose+1))
           ;;
         *)
-          echo_err "$0: illegal option -- $OPTARG"
+          echo_err_badopt $OPTARG
           usage_exit
           ;;
       esac;;
