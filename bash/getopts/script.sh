@@ -59,7 +59,7 @@ while getopts -- "-:fhl:V:v" OPT; do
             usage_exit
           fi
           LONGOPT_ARG="${BASH_ARGV[$(($BASH_ARGC-$OPTIND))]}"
-          option_value+=($LONGOPT_ARG)
+          option_value=$LONGOPT_ARG
           OPTIND=$((OPTIND+1))
           ;;
         verbose)
