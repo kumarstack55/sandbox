@@ -91,3 +91,15 @@
   [[ $(echo $output | jq ".arguments[2]==\"arg2\"") == true ]]
   [[ $(echo $output | jq ".option_verbose==0") == true ]]
 }
+
+@test "illegal option" {
+  run ./script.sh -x
+  [[ $output =~ 'usage' ]]
+  [[ $status -ne 0 ]]
+}
+
+@test "illegal long option" {
+  run ./script.sh --wrong
+  [[ $output =~ 'usage' ]]
+  [[ $status -ne 0 ]]
+}
