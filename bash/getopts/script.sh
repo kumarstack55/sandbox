@@ -28,8 +28,12 @@ while getopts -- "-:fhl:V:v" OPT; do
   case $OPT in
     -)
       case $OPTARG in
-        dry-run) option_dry_run=yes;;
-        force) option_dry_run=no;;
+        dry-run)
+          option_dry_run=yes
+          ;;
+        force)
+          option_dry_run=no
+          ;;
         list)
           LONGOPT_ARG="${BASH_ARGV[$(($BASH_ARGC-$OPTIND))]}"
           option_list+=($LONGOPT_ARG)
@@ -40,7 +44,9 @@ while getopts -- "-:fhl:V:v" OPT; do
           option_value+=($LONGOPT_ARG)
           OPTIND=$((OPTIND+1))
           ;;
-        verbose) option_verbose=$(($option_verbose+1));;
+        verbose)
+          option_verbose=$(($option_verbose+1))
+          ;;
         *)
           echo_err "$0: illegal option -- $OPTARG"
           usage_exit
