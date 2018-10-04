@@ -103,3 +103,15 @@
   [[ $output =~ 'usage' ]]
   [[ $status -ne 0 ]]
 }
+
+@test "need args" {
+  run ./script.sh -V
+  [[ $output =~ 'usage' ]]
+  [[ $status -ne 0 ]]
+}
+
+@test "need args long option" {
+  run ./script.sh --value
+  [[ $output =~ 'usage' ]]
+  [[ $status -ne 0 ]]
+}
