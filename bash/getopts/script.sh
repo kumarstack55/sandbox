@@ -41,7 +41,10 @@ while getopts -- "-:fhl:V:v" OPT; do
           OPTIND=$((OPTIND+1))
           ;;
         verbose) option_verbose=$(($option_verbose+1));;
-        *) usage_exit;;
+        *)
+          echo_err "$0: illegal option -- $OPTARG"
+          usage_exit
+          ;;
       esac;;
     f) option_dry_run=no;;
     h) usage_exit;;
