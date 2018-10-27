@@ -13,7 +13,7 @@ gloval_variables() {
   option_dry_run=no
   option_force_overwrite=no
   option_leave_tmp_dir=no
-  option_license="GPLv3"
+  option_galaxy_tag=""
 
   env_author_info=""
   env_github_username=""
@@ -182,6 +182,15 @@ generate_meta() {
 
   local license_type=$(cat $tmp_dir/output/$FNAME_LICENSE)
 
+  local galaxy_tag="$option_galaxy_tag"
+  if [[ $galaxy_tag == "" ]]; then
+    galaxy_tag="$rpm_pkg_name"
+  fi
+
+  if [[ $galaxy_tag =~ _|- ]]; then
+    die "galaxy_tags can't contains '_' or '-'"
+  fi
+
   cat <<__YAML__ | tee -a $ofile >/dev/null
 galaxy_info:
   author: $env_github_username
@@ -192,7 +201,7 @@ galaxy_info:
     - name: EL
       versions:
         - 7
-  galaxy_tags: [ $rpm_pkg_name ]
+  galaxy_tags: [ $galaxy_tag ]
 dependencies: []
 __YAML__
 
