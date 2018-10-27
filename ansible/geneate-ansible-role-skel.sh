@@ -4,6 +4,7 @@ set -eu
 
 gloval_variables() {
   FNAME_CPIO_IT=cpio_it.txt
+  FNAME_LICENSE=license.txt
   FNAME_TEMPLATE_DEST_LIST=template_dest_list.txt
   FNAME_UNIT_LIST=unit_list.txt
   MSG_SKIP_DRYRUN="skip. (dry-run)"
@@ -89,6 +90,8 @@ generate_readme() {
   local init="$1"; shift
   local rpm_pkg_name="$1"; shift
 
+  local license_type=$(cat $tmp_dir/output/$FNAME_LICENSE)
+
   local ofile=$role_name/README.md
   echo "# Generating: $ofile."
   if [[ $option_dry_run == yes ]]; then
@@ -122,12 +125,12 @@ Requirements
 Role Variables
 --------------
 
-no variables.
+None.
 
 Dependencies
 ------------
 
-no dependencies.
+None.
 
 Example Playbook
 ----------------
@@ -141,7 +144,7 @@ Example Playbook
 License
 -------
 
-$option_license
+$license_type
 
 Author Information
 ------------------
@@ -177,11 +180,13 @@ generate_meta() {
 
   : >$ofile
 
+  local license_type=$(cat $tmp_dir/output/$FNAME_LICENSE)
+
   cat <<__YAML__ | tee -a $ofile >/dev/null
 galaxy_info:
   author: $env_github_username
   description: $rpm_pkg_name
-  license: GPL
+  license: $license_type
   min_ansible_version: 1.2
   platforms:
     - name: EL
@@ -410,6 +415,13 @@ main() {
   yumdownloader --destdir $rpm_dir $rpm_pkg_name 2>&1 >/dev/null
   local pkg_path=$(readlink -f $(find $rpm_dir -type f))
   echo "rpm file: $pkg_path"
+  echo
+
+  echo "# Get license type..."
+  rpm -q -p $pkg_path --qf "%{LICENSE}" \
+    >$out_dir/$FNAME_LICENSE
+  cat "$out_dir/$FNAME_LICENSE"
+  echo
 
   echo "# Listing files from package..."
   mkdir -pv $out_dir
@@ -417,6 +429,7 @@ main() {
     | cpio -it \
     | sed -e 's/^\.//' \
     >$out_dir/$FNAME_CPIO_IT
+  echo
 
   echo "# Listing destination path..."
   cat \
@@ -425,6 +438,7 @@ main() {
     | sort \
     | uniq --repeated \
     >$out_dir/$FNAME_TEMPLATE_DEST_LIST
+  echo
 
   echo "# Listing systemd units..."
   set +e
@@ -432,6 +446,7 @@ main() {
     | grep -Po "(?<=^/usr/lib/systemd/system/).+(?=.service)" \
     >$out_dir/$FNAME_UNIT_LIST
   set -e
+  echo
 
   echo "# Initializing ansible role..."
   local role_name="ansible-role-${rpm_pkg_name}"
@@ -445,6 +460,7 @@ main() {
     init=yes
     ansible-galaxy init $role_name
   fi
+  echo
 
   echo "# Generating directory and files..."
   generate_readme    $tmp_dir $role_name $init $rpm_pkg_name
@@ -457,9 +473,11 @@ main() {
   if [[ $option_leave_tmp_dir == 'yes' ]]; then
     echo "# To remove temporary directory, type:"
     echo "$ rm -rf $tmp_dir"
+    echo
   else
     echo "# Removing temporary directory."
     rm -rf $tmp_dir
+    echo
   fi
 }
 
