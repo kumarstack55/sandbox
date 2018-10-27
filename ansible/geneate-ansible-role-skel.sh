@@ -53,7 +53,6 @@ usage_exit() {
   echo_err "options:"
   echo_err " --dry-run       : Don't make any change"
   echo_err " -f, --force     : Force overwrite"
-  echo_err " --dest-dir      : Destination directory"
   echo_err " --leave-tmp-dir : Don't remove temporary directory"
   exit 1
 }
@@ -188,7 +187,12 @@ generate_meta() {
   fi
 
   if [[ $galaxy_tag =~ _|- ]]; then
-    die "galaxy_tags can't contains '_' or '-'"
+    tag=$(echo $rpm_pkg_name | sed -e 's/-.*//')
+    echo_err "galaxy_tags can't contains '_' or '-'"
+    echo_err "galaxy_tag: $galaxy_tag"
+    echo_err "use option to set tag like:"
+    echo_err "  --galaxy-tag $tag"
+    die
   fi
 
   cat <<__YAML__ | tee -a $ofile >/dev/null
@@ -506,6 +510,16 @@ while getopts -- "-:fh" OPT; do
         leave-tmp-dir)
           option_leave_tmp_dir=yes
           ;;
+        galaxy-tag)
+          if [[ $OPTIND -gt $BASH_ARGC ]]; then
+            echo_err_needarg $OPTARG
+            usage_exit
+          fi
+          LONGOPT_ARG="${BASH_ARGV[$(($BASH_ARGC-$OPTIND))]}"
+          option_galaxy_tag=$LONGOPT_ARG
+          OPTIND=$((OPTIND+1))
+;;
+
         *)
           getopt_err_badopt $OPTARG
           usage_exit
