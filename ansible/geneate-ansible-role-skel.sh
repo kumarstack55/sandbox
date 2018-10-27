@@ -431,13 +431,13 @@ main() {
   echo
 
   echo "# Get license type..."
+  mkdir -pv $out_dir
   rpm -q -p $pkg_path --qf "%{LICENSE}" \
     >$out_dir/$FNAME_LICENSE
   cat "$out_dir/$FNAME_LICENSE"
   echo
 
   echo "# Listing files from package..."
-  mkdir -pv $out_dir
   rpm2cpio $pkg_path \
     | cpio -it \
     | sed -e 's/^\.//' \
