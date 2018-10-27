@@ -232,7 +232,7 @@ generate_tasks() {
         item.src
         | default(
             item.dest
-            | regex_replace('/\\.', '/dot.')
+            | regex_replace('/\\\\.', '/dot.')
             | regex_replace('^/', 'el7/')
           ) + '.j2'
       }}"
@@ -392,7 +392,7 @@ generate_tests() {
   gather_facts: no
   become: yes
   roles:
-    - ansible-role-mlocate
+    - ansible-role-${rpm_pkg_name}
 __YAML__
 
   echo
@@ -427,9 +427,11 @@ main() {
     >$out_dir/$FNAME_TEMPLATE_DEST_LIST
 
   echo "# Listing systemd units..."
+  set +e
   rpm -q -p $pkg_path -l \
     | grep -Po "(?<=^/usr/lib/systemd/system/).+(?=.service)" \
     >$out_dir/$FNAME_UNIT_LIST
+  set -e
 
   echo "# Initializing ansible role..."
   local role_name="ansible-role-${rpm_pkg_name}"
@@ -474,7 +476,7 @@ while getopts -- "-:fh" OPT; do
         force)
           option_force_overwrite=yes
           ;;
-        leave-tmp-directory)
+        leave-tmp-dir)
           option_leave_tmp_dir=yes
           ;;
         *)
